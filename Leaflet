@@ -1,0 +1,5 @@
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+ <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+ <div id="mapid"></div>
+#mapid { height: 180px; }
+var mymap = L.map('mapid').setView([51.505, -0.09], 13);    #changeGPScoords
