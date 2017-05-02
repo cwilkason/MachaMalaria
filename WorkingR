@@ -1,1 +1,34 @@
 #This is where our R code goes
+
+###ALL OF THE LIBRARIES###
+library(spdep)
+library(maptools)
+library(classInt)
+library(RColorBrewer)
+library(geoR)
+library(scales)
+library(lattice)
+library(dplyr)
+library(devtools)
+library(leaflet)
+library(DT)
+library(shiny)
+
+clinics <- readShapePoints("/Volumes/CWILKASON/Zambia/Basemaps/Clinic.shp")
+data1 <- read.csv("/Users/cwilkason/GoogleDrive/Colby's Mac/JHSPH/MRT/InteractiveMap/data1.csv")
+clinicsLAT <- clinics$lat
+clinicsLONG <- clinics$long
+clinicsNAME <- clinics$Name
+
+So far this is only popping up in the R console, FYI -> can't figure out how to use shiny with it
+
+######### (1) Upload Leaflet (map) ###############
+install.packages("leaflet")
+library("leaflet")
+
+##uploading Leaflet and adding the markers###
+m <- leaflet(data = clinics) %>%
+      addTiles() %>%  ### Add default OpenStreetMap map tiles
+      addMarkers(~clinicsLONG,~clinicsLAT,popup=~clinicsNAME)   ##~clinicsLONG, ~clinicsLAT, ~clinicsNAME are all from clinics shapefile
+m 
+
