@@ -22,11 +22,11 @@ clinicsNAME <- clinics$Name
 
 So far this is only popping up in the R console, FYI -> can't figure out how to use shiny with it
 
-######### (1) Upload Leaflet (map) ###############
+########## (STEP 1) Upload Leaflet map ##########
 install.packages("leaflet")
 library("leaflet")
 
-##uploading Leaflet and adding the markers###
+####### (STEP 1.A) uploading Leaflet and adding the markers #######
 m <- leaflet(data = clinics) %>%
       addTiles() %>%  ### Add default OpenStreetMap map tiles
       addMarkers(~clinicsLONG,~clinicsLAT,popup=~clinicsNAME)   ##~clinicsLONG, ~clinicsLAT, ~clinicsNAME are all from clinics shapefile
