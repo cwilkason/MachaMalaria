@@ -9,55 +9,52 @@ library(xts)
 
 # ui side
 
-vars <- c(
-      "RDT positive, under 5yo" = "rdtp_u5",
-      "RDT positive, over 5yo" = "rdtp_a5",
-      "RDT negative, under 5yo, not treated" = "rdt_u5ntx",
-      "RDT negative, over 5yo, not treated" = "rdt_a5ntx",
-      "RDT negative, under 5yo, treated" = "rdt_u5tx",
-      "RDT negative, over 5yo, treated" = "rdt_a5tx",
-      "No RDT, under 5yo, treated" = "nordt_u5",
-      "No RDT, above 5yo, treated" = "nordt_a5"
-      )
-
-
 ui <- dashboardPage(
       
       dashboardHeader(title = "Macha Malaria Mapping", titleWidth = 300),
       
       dashboardSidebar(
             fileInput('datafile', 'Upload CSV file', accept=c('text/csv')),
+            
+            selectInput("select", label = (h3("Variables")), 
+                        choices = list(
+                              "RDT positive, under 5yo" = "rdtp_u5",
+                              "RDT positive, over 5yo" = "rdtp_a5",
+                              "RDT negative, under 5yo, not treated" = "rdt_u5ntx",
+                              "RDT negative, over 5yo, not treated" = "rdt_a5ntx",
+                              "RDT negative, under 5yo, treated" = "rdt_u5tx",
+                              "RDT negative, over 5yo, treated" = "rdt_a5tx",
+                              "No RDT, under 5yo, treated" = "nordt_u5",
+                              "No RDT, above 5yo, treated" = "nordt_a5"
+                        ), 
+                        selected = 1),
             radioButtons("time", label = h3("Subtypes"),
                          choices = list("Sum" = 1, "Average" = 2, "Median" = 3),
                          selected = 1)
             ),
       
+      
+      
       dashboardBody(
             # Boxes need to be put in a row (or column)
+                  
             
-            fluidRow(id="isdata",
+             fluidRow(id="isdata",
                      valueBox(textOutput("text1"), "is the total malaria count", color = "green")),        
             
             
             fluidPage(
-                  mainPanel("Malaria maps"),
-                  leafletOutput("mymap"),
-                  dygraphOutput("dygraph")),
                   
-            #want to create a see-through panel similar to https://shiny.rstudio.com/gallery/superzip-example.html
-
-            absolutePanel(title = "Macha Malaria Mapping", titleWidth = 300, id = "controls", class="panel panel-default", fixed = TRUE,
-                   draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
-                   width = 330, height = "auto",
-                   
-                   h2("data_final"),
-                   
-                   selectInput("Variables", "variables", vars),
-                   tableOutput("data")
-                   
-            )
-            )
-      )
+                  mainPanel("Malaria Maps"),
+                  dateRangeInput("dates", label = h3("Date range")),
+                  
+                  leafletOutput("mymap"),
+                  dygraphOutput("dygraph")
+                        )
+     
+                  )
+)
+      
 
 
 
@@ -87,8 +84,20 @@ server <- function(input, output){
             
       })
       
-      # clinic coords
       
+      # select box
+      output$value_select <- renderPrint({ 
+            df<- filedata()
+            if (is.null(df)) return(NULL) # return nothing if nothing is uploaded
+            input$select })
+      
+      # date field
+      output$value_date <- renderPrint({ 
+            df<- filedata()
+            if (is.null(df)) return(NULL) # return nothing if nothing is uploaded
+            input$dates })
+      
+      # clinic coords
       output$mymap <- renderLeaflet({
             df <- filedata()
             if (is.null(df)) return(NULL) 
@@ -98,9 +107,9 @@ server <- function(input, output){
                   addMarkers(lng = df$long, lat = df$lat) %>%
                   addCircleMarkers(lng = df$long, lat = df$lat, weight = 1, 
                                    radius = df$rdtp_a5 + df$rdtp_u5)
-            
-            
       })
+      
+      # dygraphs
       output$dygraph <- renderDygraph({
       df<- filedata()
       if (is.null(df)) return(NULL) 
@@ -111,14 +120,13 @@ server <- function(input, output){
             dyRangeSelector() 
       })
       
+ 
       }
       
-
-
       
+     
       
 shinyApp(ui, server)
-
 
 
 
